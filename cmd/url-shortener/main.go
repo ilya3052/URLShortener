@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"os"
 	"log/slog"
+	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/lib/logger/sl"
+	"url-shortener/internal/storage/postgresql"
 )
 
 const (
@@ -18,10 +20,20 @@ func main () {
 
 	cfg := config.MustLoad()
 
+	fmt.Println(cfg.Conn_str)
+
 	log := setupLogger(cfg.Env)
 
-	log.Info("starting url-shortener", slog.String("env", cfg.Env))
-	log.Debug("debug messages are enabled")
+	// log.Info("starting url-shortener", slog.String("env", cfg.Env))
+	// log.Debug("debug messages are enabled")
+
+	storage, err := postgresql.New(cfg.Conn_str)
+	if err != nil {
+		log.Error("failed to init storage", sl.Err(err))
+		os.Exit(1)
+	}
+
+	_ = storage
 }
 
 func setupLogger (env string) *slog.Logger {
