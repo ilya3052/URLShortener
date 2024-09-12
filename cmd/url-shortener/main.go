@@ -21,6 +21,8 @@ const (
 func main() {
 	fmt.Println("Запущено")
 
+    fmt.Println("Для коммита")
+
 	cfg := config.MustLoad()
 
 	fmt.Println(cfg.Conn_str)
