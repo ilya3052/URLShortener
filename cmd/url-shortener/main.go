@@ -33,6 +33,31 @@ func main () {
 		os.Exit(1)
 	}
 
+	id, err := storage.SaveURL("https://google.com", "google")
+	if err != nil {
+		log.Error("failed to save url", sl.Err(err))
+		os.Exit(1)
+	}
+	log.Info("saved url", slog.Int64("id", id))
+
+	url, err := storage.GETUrl("https://google.com")
+
+	if err != nil {
+		log.Error("failed to get url", sl.Err(err))
+		os.Exit(1)
+	}
+
+	log.Info("get url", slog.String("url", url))
+
+	err = storage.DeleteURL("https://google.com")
+
+	if err != nil {
+		log.Error("failed to delete url", sl.Err(err))
+		os.Exit(1)
+	}
+
+	log.Info("deleted url")
+
 	_ = storage
 }
 
