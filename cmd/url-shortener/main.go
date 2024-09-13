@@ -3,8 +3,10 @@ package main
 import (
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"url-shortener/internal/config"
+	"url-shortener/internal/http-server/handlers/url/save"
 	"url-shortener/internal/lib/logger/sl"
 	"url-shortener/internal/storage/postgresql"
 
@@ -29,7 +31,7 @@ func main() {
 
 	log := setupLogger(cfg.Env)
 
-	// log.Info("starting url-shortener", slog.String("env", cfg.Env))
+	log.Info("starting url-shortener", slog.String("env", cfg.Env))
 	// log.Debug("debug messages are enabled")
 
 	storage, err := postgresql.New(cfg.Conn_str)
@@ -58,7 +60,25 @@ func main() {
 	router.Use(middleware.Recoverer)
 	router.Use(middleware.URLFormat)
 
-	_ = storage
+	router.Post("/url", save.New(log, storage))
+
+	log.Info("starting server", slog.String("address", cfg.Address))
+
+	srv := &http.Server{
+		Addr:    cfg.Address,
+		Handler: router,
+		ReadTimeout: cfg.HTTP_server.Timeout,
+		WriteTimeout: cfg.HTTP_server.Timeout,
+		IdleTimeout: cfg.HTTP_server.Idle_timeout,
+	}
+
+	if err := srv.ListenAndServe(); err != nil {
+		log.Error("failed to start server")
+	}
+
+	log.Error("server stopped")
+
+	_ = storage 
 }
 
 func setupLogger(env string) *slog.Logger {

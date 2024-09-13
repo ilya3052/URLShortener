@@ -1,13 +1,15 @@
 package response
 
+const AliasLength = 6
+
 type Response struct {
-	Status	string `json: status` //Error, Ok
-	Error 	string `json:"error,omitempty"`
+	Status string `json: status` //Error, Ok
+	Error  string `json:"error,omitempty"`
 }
 
 const (
 	StatusError = "Error"
-	StatusOk = "Ok"
+	StatusOk    = "Ok"
 )
 
 func OK() Response {
@@ -19,6 +21,6 @@ func OK() Response {
 func Error(err string) Response {
 	return Response{
 		Status: StatusError,
-		Error: err,
+		Error:  err,
 	}
 }
